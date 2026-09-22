@@ -1,0 +1,6 @@
+- insert:
+    - id: dsh-wsl-glab
+      name: dsh-wsl-glab
+      config:
+        enabled: true
+        timeoutMs: 30000
