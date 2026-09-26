@@ -1,4 +1,4 @@
-import { glabStatus, glabVersion, glabMrList, glabCiStatus, glabIssueList } from "./lib/glab.js";
+import { glabStatus, glabMrList, glabCiStatus, glabIssueList } from "./lib/glab.js";
 
 export const name = "dsh-wsl-glab";
 export const inject = ["tools", "systemPrompt"];
@@ -19,20 +19,13 @@ export function apply(ctx, config = {}) {
 
   ctx.tools.register({
     name: "glab_status",
-    description: "Whether glab is on PATH; print version if available.",
+    description: "Whether glab is on PATH; version + auth status summary (never returns tokens).",
     parameters: { type: "object", additionalProperties: false, properties: {} },
-    output: { schema: { type: "object", additionalProperties: true }, render: (_a, v) => [{ type: "text", text: JSON.stringify(v) }] },
-    timeoutMs: 10_000,
+    output: { schema: { type: "object", additionalProperties: true }, render: (_a, v) => [{ type: "text", text: JSON.stringify(v, null, 2) }] },
+    timeoutMs: 15_000,
     isConcurrencySafe: () => true,
     async execute() {
-      const st = await glabStatus();
-      if (!st.glab) return st;
-      try {
-        const ver = await glabVersion({ timeoutMs: 10_000 });
-        return { ...st, version: ver.output };
-      } catch (e) {
-        return { ...st, error: e instanceof Error ? e.message : String(e) };
-      }
+      return glabStatus();
     },
     presentCall: () => ({ card: "generic", title: "glab status" }),
     presentResult: (_a, r) => ({ card: "generic", title: "glab status", content: r.content }),
